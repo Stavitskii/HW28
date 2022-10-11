@@ -10,6 +10,9 @@ class Location(models.Model):
         verbose_name = 'Местоположение'
         verbose_name_plural = 'Местоположения'
 
+    def __str__(self):
+        return self.name
+
 
 class UserRoles:
     USER = 'member'
@@ -29,3 +32,11 @@ class User(models.Model):
     password = models.CharField(max_length=30)
     role = models.CharField(choices=UserRoles.choices, default='member', max_length=60)
     location = models.ManyToManyField(Location)
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return f" Пользователь: {self.first_name} {self.last_name}"
+
