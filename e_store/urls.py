@@ -7,8 +7,8 @@ from e_store import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', root),
-    path('cat/', CategoryView.as_view()),
-    path('cat/<int:pk>', CategoryDetailView.as_view()),
+    path('cat/', include('ads.urls.cat_urls')),
+
     path('ad/', AdView.as_view()),
     path('ad/<int:pk>', AdDetailView.as_view()),
     path("user/", include("users.urls"))

@@ -51,7 +51,7 @@ class CategoryUpdateView(UpdateView):
         data = json.loads(request.body)
         self.object.name = data['name']
         self.object.save()
-        return JsonResponse({'id': self.id, 'name': self.name}, safe=False,
+        return JsonResponse({'id': self.object.id, 'name': self.object.name}, safe=False,
                             json_dumps_params={'ensure_ascii': False})
 
 
@@ -62,7 +62,7 @@ class CategoryDeleteView(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         super().delete(request, *args, **kwargs)
-        return JsonResponse(status=204)
+        return JsonResponse({}, status=204)
 
 
 class CategoryDetailView(DetailView):
