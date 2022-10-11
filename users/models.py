@@ -26,7 +26,7 @@ class UserRoles:
 
 
 class User(models.Model):
-    first_name = models.CharField(max_length=60)
+    first_name = models.CharField(verbose_name="Имя", max_length=60)
     last_name = models.CharField(max_length=60)
     username = models.CharField(max_length=20, unique=True)
     password = models.CharField(max_length=30)
