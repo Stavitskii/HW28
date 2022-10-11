@@ -38,5 +38,5 @@ class User(models.Model):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return f" Пользователь: {self.first_name} {self.last_name}"
+        return f"Пользователь: {self.first_name} {self.last_name}"
 
