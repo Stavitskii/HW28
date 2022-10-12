@@ -1,12 +1,14 @@
 import json
 
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, ListView
 
 from ads.models import Category, Ad
+from e_store import settings
 
 
 def root(request):
@@ -74,20 +76,34 @@ class CategoryDetailView(DetailView):
                             json_dumps_params={'ensure_ascii': False})
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class AdView(View):
-    def get(self, request):
-        all_ads = Ad.objects.all()
+class AdListView(ListView):
+    model = Ad
+    queryset = Ad.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        super().get(self, *args, **kwargs)
+        self.object_list =  self.object_list.order_by("-price")
+        paginator = Paginator(object_list=self.object_list, per_page=settings.TOTAL_ON_PAGE)
+        page = request.GET.get('page')
+        page_obj = paginator.get_page(page)
         result = []
-        for ad in all_ads:
+        for ad in page_obj:
             result.append(
                 {"id": ad.id,
                  "name": ad.name,
-                 "author": ad.author,
+                 "author": ad.author.username,
+                 "category": ad.category.name if ad.category else "Not a category",
                  "price": ad.price,
                  "description": ad.description,
-                 "is_published": ad.is_published})
-        return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
+                 "is_published": ad.is_published,
+                 "image": ad.image.url
+                 })
+        return JsonResponse({'ads': result, 'page': page_obj.number, 'total': page_obj.paginator.count}, safe=False,
+                            json_dumps_params={'ensure_ascii': False})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdView(View):
 
     def post(self, request):
         data = json.loads(request.body)
