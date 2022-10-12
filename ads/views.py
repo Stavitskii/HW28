@@ -2,6 +2,7 @@ import json
 
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,7 @@ from django.views.generic import DetailView, CreateView, UpdateView, DeleteView,
 
 from ads.models import Category, Ad
 from e_store import settings
+from users.models import User
 
 
 def root(request):
@@ -103,25 +105,35 @@ class AdListView(ListView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class AdView(View):
+class AdCreateView(CreateView):
+    model = Ad
+    fields = ['name', 'author', 'price', 'description', 'is_published', 'category']
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
+
+        author = get_object_or_404(User, id=data['author_id'])
+        category = get_object_or_404(Category, id=data['category_id'])
+
         new_ad = Ad.objects.create(
             name=data['name'],
-            author=data['author'],
+            author=author,
+            category=category,
             price=data['price'],
             description=data['description'],
-            address=data['address'],
-            is_published=data['is_published']
+            is_published=data['is_published'] if 'is_published' in data else False
         )
-        return JsonResponse({'id': new_ad.id,
-                             'name': new_ad.name,
-                             'author': new_ad.author,
-                             'price': new_ad.price,
-                             'description': new_ad.description,
-                             'address': new_ad.address,
-                             'is_published': new_ad.is_published}, safe=False,
+
+
+        return JsonResponse({"id": new_ad.id,
+                             "name": new_ad.name,
+                             "author": new_ad.author.username,
+                             "category": new_ad.category.name,
+                             "price": new_ad.price,
+                             "description": new_ad.description,
+                             "address": new_ad.address,
+                             "is_published": new_ad.is_published,
+                             }, safe=False,
                             json_dumps_params={'ensure_ascii': False})
 
 
