@@ -29,6 +29,7 @@ class UserListView(ListView):
                  "first_name": user.first_name,
                  "last_name": user.last_name,
                  "role": user.role,
+                 "ads_count": user.ads.count()
                  })
         return JsonResponse({'ads': result, 'page': page_obj.number, 'total': page_obj.paginator.count}, safe=False,
                             json_dumps_params={'ensure_ascii': False})
@@ -52,6 +53,7 @@ class UserCreateView(CreateView):
         for loc in data['locations']:
             location, _ = Location.objects.get_or_create(name=loc)
             user.location.add(location)
+
 
         return JsonResponse({'id': user.id,
                              'username': user.username,
