@@ -86,7 +86,6 @@ class AdView(View):
                  "author": ad.author,
                  "price": ad.price,
                  "description": ad.description,
-                 "address": ad.address,
                  "is_published": ad.is_published})
         return JsonResponse(result, safe=False, json_dumps_params={'ensure_ascii': False})
 
@@ -107,6 +106,27 @@ class AdView(View):
                              'description': new_ad.description,
                              'address': new_ad.address,
                              'is_published': new_ad.is_published}, safe=False,
+                            json_dumps_params={'ensure_ascii': False})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdUploadImageView(UpdateView):
+    model = Ad
+    fields = ['image']
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.image = request.FILES.get("image")
+        self.object.save()
+        return JsonResponse({"id": self.object.id,
+                             "name": self.object.name,
+                             "author": self.object.author.username,
+                             "category": self.object.category.name,
+                             "price": self.object.price,
+                             "description": self.object.description,
+                             "address": self.object.address,
+                             "is_published": self.object.is_published,
+                             "image": self.object.image.url}, safe=False,
                             json_dumps_params={'ensure_ascii': False})
 
 
